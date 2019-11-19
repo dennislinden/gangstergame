@@ -1,4 +1,16 @@
 import random
+import sys
+
+# get python version
+def get_py_version():
+    i = (sys.version)
+    return i
+
+version = get_py_version()
+
+if '3' in version:
+    raw_input = input
+
 
 drugs = ('heroin', 'cocaine', 'weed', 'shrooms')
 drugprice = {'heroin':50 , 'cocaine':40, 'weed':30, 'shrooms':20}
@@ -16,6 +28,8 @@ startfund = 50000
 totalfunds = totalfunds + startfund
 print ("\nYour funds are: €{}".format(totalfunds))
 
+totalgamesplayed = 1
+
 ########### functions ###############################
 
 def choose_name():
@@ -29,9 +43,9 @@ def random_drugs_select():
 
 
 def escape_vehicle():
-    print("Your car is a {}".format(cars[3]))
+    print("\nYour current car is a {}".format(cars[3]))
     print("Your current balance is €{}".format(totalfunds))
-    i = input("Do you want to buy a new car? y or n: ")
+    i = input("Do you want to buy a new car? Y or N: ")
     if i == "y":
         while True:
             x = input("\nYou can choose: \n1: {} €{} \n2: {} €{} \n3: {} €{} \n4: {} €{} \npress a number: "
@@ -71,7 +85,7 @@ def escape_vehicle():
         return cars[3]
 
 def escape_chance(object):
-    x = object
+    x = object # object is the bought car
     if x == cars[0]:
         return (carsescapechance[x])
     elif x == cars[1]:
@@ -81,16 +95,46 @@ def escape_chance(object):
     elif x == cars[3]:
         return (carsescapechance[x])
     else:
-        print("your old car")
+        return (carsescapechance['Opel Kadett'])
 
-def smuggle_drugs(escapechance, drugprice):
-    x = escapechance
+def buy_extra_drugs(selecteddrugs, drugprice):
+    x = selecteddrugs
     y = drugprice
-    if x >= 50:
-        return True 
-        print("yes")     
+    i = input("Do you want to buy exta {} Y or N?".format(x))
+    if i.lower()=='y':
+        gram = int(input("How much gram do you want? Your current balance is €{} \nYou can buy max {} grams ". format(totalfunds, totalfunds/y)))
+        while gram * y > totalfunds:
+            gram = int(input("You do not have enough money choose less gram. \nyou can buy max {} grams ".format(totalfunds/y)))
+            return gram * y
+        else:
+            return gram * y  
     else:
-        return False
+        return 0
+
+def smuggle_drugs(escapechance):
+    x = escapechance
+    y = random.randint(x, x+30)
+    print(y)
+    if totalgamesplayed <= 1:
+        if x >= 20:
+            return True 
+            print("yes")     
+        else:
+            return False
+    elif totalgamesplayed >= 2 and totalgamesplayed <= 3:
+        if x >= 40:
+            return True 
+            print("yes")     
+        else:
+            return False
+    elif totalgamesplayed >= 4 and totalgamesplayed <= 30:
+        if x >= 90:
+            return True 
+            print("yes")     
+        else:
+            return False
+    else:
+        pass
 
 ############### logic #################
 
@@ -107,7 +151,11 @@ while True:
     # print what kind of drugs you need to smuggle
     randomdrugsselect = random_drugs_select()
     drugprice_select = drugprice[randomdrugsselect]
-    print('You need to smuggle {} for €{}'.format(randomdrugsselect.title(), drugprice_select))
+    print('\nYou need to smuggle {} for €{} per gram'.format(randomdrugsselect.title(), drugprice_select))
+
+    # How much gram do you want to smuggle?
+    buyextrsdrugs =  buy_extra_drugs(randomdrugsselect, drugprice_select)
+    totalfunds = totalfunds - buyextrsdrugs
 
 
     #print which car you bought
@@ -126,23 +174,34 @@ while True:
     escapechance = escape_chance(escapevehicle)
     print("Your chance to escape is {}%". format(escapechance))
     #start the smuggle of drugs based on type of car you get more chance to succeed
-    smuggledrugs = smuggle_drugs(escape_chance(escapevehicle), drugprice_select)
+    smuggledrugs = smuggle_drugs(escape_chance(escapevehicle))
+
+
+
 
     if smuggledrugs == True:
         print("You smuggled succesfully")
-        totalfunds = totalfunds + drugprice_select
+        totalfunds = totalfunds + buyextrsdrugs*1.30
     else:
         print("You are busted!")
-        totalfunds = totalfunds - drugprice_select
+        totalfunds = totalfunds - buyextrsdrugs
     print("Your new balance is €{}".format(totalfunds))
     
+    # Broke message
+    if totalfunds <= 0:
+        print("You are broke, Game Over!")
+
     # Quit the game
     quit = input("Do you want to quit? yes or no ")
+    
+
     if quit[0].lower()=='y':
         print("Thanks for playing!")
         break
     else:
-       continue 
+        totalgamesplayed = totalgamesplayed + 1
+        print(totalgamesplayed)
+        continue 
 
 
 
